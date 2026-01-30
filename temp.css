@@ -1,5 +1,4 @@
 
-
 body{
     box-sizing: border-box; 
     margin: 0;
@@ -161,9 +160,8 @@ span{
 input[type="email"]{
     padding: 14px 28px;
     font-size: 15px;
-    width: 55%;
+    width: 100%;
     border: 2px solid  aliceblue;
-    border-radius: 15px;
     &:focus{
         outline: none;
         border-color: #2A8E9E;
