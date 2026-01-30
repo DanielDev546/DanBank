@@ -7,17 +7,95 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body class="bg-gray-900 text-white">
+<body class="bg-gray-900 text-white p-7 px-7">
 
-<header class="flex justify-between items-center p-6 bg-gray-800 shadow">
-      <div class="text-2xl font-bold flex">Dan<span class="text-blue-500 text-2xl">Bank</span>
-        <span><h1 class="text-2xl font-bold mx-2"></span> Dashboard</h1>
-</div>
-    <div class="flex items-center gap-4">
-        <span id="userEmail"  class="text-gray-400 text-0.2xl md:text-xl"></span>
-        <button onclick="logout()" class="px-4 py-2 bg-red-500 rounded hover:bg-red-400">Logout</button>
-    </div>
+<!-- MOBILE TOP BAR -->
+<header class="md:hidden flex justify-between items-center p-4 bg-gray-800 shadow sticky top-0 z-40">
+  <div class="text-xl font-bold">Dan<span class="text-blue-500">Bank</span></div>
+
+  <button onclick="toggleSidebar()"
+    class="px-3 py-2 rounded-lg bg-gray-700 hover:bg-gray-600 transition">
+    ☰
+  </button>
+  
 </header>
+<button onclick="toggleSidebar()"
+    class="px-3 py-2 rounded-lg bg-gray-700 hover:bg-gray-600 transition">
+    ☰
+  </button>
+<!-- SIDEBAR OVERLAY (mobile) -->
+<div id="sidebarOverlay"
+  class="fixed inset-0 bg-black/60 hidden z-40 md:hidden"
+  onclick="toggleSidebar()">
+</div>
+
+<!-- SIDEBAR -->
+<aside id="sidebar"
+  class="fixed top-0 left-0 h-full bg-gray-800 border-r border-white/10
+  transition-all duration-300 z-50 w-72">
+
+  <div class="h-full flex flex-col p-5">
+
+    <!-- TOP: Brand + Toggle -->
+    <div class="flex items-center justify-between">
+      <div class="text-2xl font-bold whitespace-nowrap overflow-hidden">
+        Dan<span class="text-blue-500">Bank</span>
+      </div>
+
+      <!-- Toggle Button (Always visible) -->
+      <button onclick="toggleSidebar()"
+        class="p-2 rounded-lg bg-gray-700 hover:bg-gray-600 transition">
+        ☰
+      </button>
+    </div>
+
+    <!-- Email -->
+    <p id="userEmailSidebar"
+      class="mt-4 text-sm text-gray-400 break-word sidebar-text">
+    </p>
+
+    <!-- Divider -->
+    <div class="my-5 h-px bg-white/10"></div>
+
+    <!-- MENU -->
+    <nav class="space-y-2 text-sm">
+      <button onclick="scrollToSection('cardsSection')"
+        class="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition">
+        <span class="text-lg">💳</span>
+        <span class="sidebar-text">My Cards</span>
+      </button>
+
+      <button onclick="scrollToSection('sendSection')"
+        class="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition">
+        <span class="text-lg">💸</span>
+        <span class="sidebar-text">Send Money</span>
+      </button>
+
+      <button onclick="scrollToSection('historySection')"
+        class="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition">
+        <span class="text-lg">📜</span>
+        <span class="sidebar-text">Transactions</span>
+      </button>
+
+      <button onclick="scrollToSection('chartSection')"
+        class="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition">
+        <span class="text-lg">📊</span>
+        <span class="sidebar-text">Overview</span>
+      </button>
+    </nav>
+
+    <div class="flex-1"></div>
+
+    <!-- LOGOUT -->
+    <button onclick="logout()"
+      class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-500 rounded-lg hover:bg-red-400 transition font-semibold">
+      <span>🚪</span>
+      <span class="sidebar-text">Logout</span>
+    </button>
+  </div>
+</aside>
+
+
 
 <main class="max-w-6xl mx-auto py-10 px-6 space-y-10">
 
@@ -86,6 +164,31 @@
 </main>
 
 <script>
+    //opl
+    // SIDEBAR TOGGLE (Mobile)
+function toggleSidebar() {
+  const sidebar = document.getElementById("sidebar");
+  const overlay = document.getElementById("sidebarOverlay");
+
+  const isOpen = !sidebar.classList.contains("-translate-x-full");
+
+  if (isOpen) {
+    sidebar.classList.add("-translate-x-full");
+    overlay.classList.add("hidden");
+  } else {
+    sidebar.classList.remove("-translate-x-full");
+    overlay.classList.remove("hidden");
+  }
+}
+
+// Smooth scroll
+function scrollToSection(id) {
+  document.getElementById(id).scrollIntoView({ behavior: "smooth" });
+
+  // auto close sidebar on mobile after clicking
+  if (window.innerWidth < 768) toggleSidebar();
+}
+//opl
     // 1. IDENTITY SETUP
     const user = JSON.parse(localStorage.getItem("fintechUser"));
     if (!localStorage.getItem("loggedIn") || !user) {
