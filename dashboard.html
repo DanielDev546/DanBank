@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fintech Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-900 text-white">
+
+<header class="flex justify-between items-center p-6 bg-gray-800 shadow">
+    <h1 class="text-2xl font-bold">Fintech Dashboard</h1>
+    <div class="flex items-center gap-4">
+        <span id="userEmail" class="text-gray-400"></span>
+        <button onclick="logout()" class="px-4 py-2 bg-red-500 rounded hover:bg-red-400">Logout</button>
+    </div>
+</header>
+
+<main class="max-w-6xl mx-auto py-10 px-6 space-y-10">
+
+    <section class="grid md:grid-cols-3 gap-6">
+        <div class="bg-gray-800 p-6 rounded-xl shadow border-t-4 border-indigo-500">
+            <p class="text-gray-400">Active Card Balance</p>
+            <h2 id="balance" class="text-3xl font-bold mt-2">₦0</h2>
+            <p id="activeCardName" class="text-xs text-indigo-400 mt-1 uppercase font-bold"></p>
+        </div>
+
+        <div class="bg-gray-800 p-6 rounded-xl shadow space-y-4">
+            <h3 class="font-bold">My Cards</h3>
+            <div id="cards" class="space-y-2 max-h-40 overflow-y-auto">
+                </div>
+            <button onclick="addCard()" class="w-full bg-indigo-600 py-2 rounded hover:bg-indigo-500 font-medium">+ Add New Card</button>
+        </div>
+
+        <div class="bg-gray-800 p-6 rounded-xl shadow">
+            <h3 class="font-bold">Notifications</h3>
+            <ul id="notifications" class="text-gray-400 text-xs space-y-1 mt-2"></ul>
+        </div>
+    </section>
+
+    <section class="grid md:grid-cols-2 gap-6">
+        <div class="bg-gray-800 p-6 rounded-xl shadow space-y-4">
+            <h3 class="font-bold text-lg">Send Money</h3>
+            <select id="bankSelect" class="w-full p-2 rounded bg-gray-700 border border-gray-600">
+                <option value="">-- Choose Bank --</option>
+                <option value="First Bank">First Bank</option>
+                <option value="GTBank">GTBank</option>
+                <option value="Zenith Bank">Zenith Bank</option>
+            </select>
+            <input id="recipientName" type="text" placeholder="Recipient Name" class="w-full p-2 rounded bg-gray-700 border border-gray-600">
+            <input id="sendAmount" type="number" placeholder="₦ Amount" class="w-full p-2 rounded bg-gray-700 border border-gray-600">
+            <button onclick="sendMoney()" class="w-full bg-indigo-600 py-2 rounded hover:bg-indigo-500">Send Now</button>
+        </div>
+
+        <div class="bg-gray-800 p-6 rounded-xl shadow space-y-4">
+            <h3 class="font-bold text-lg">Receive Money (Top Up)</h3>
+            <p class="text-xs text-gray-400">Add funds to your active card.</p>
+            <input id="receiveAmount" type="number" placeholder="₦ Amount" class="w-full p-2 rounded bg-gray-700 border border-gray-600">
+            <button onclick="receiveMoney()" class="w-full bg-green-600 py-2 rounded hover:bg-green-500">Deposit</button>
+        </div>
+    </section>
+
+    <section class="bg-gray-800 p-6 rounded-xl shadow space-y-4">
+        <div class="flex justify-between items-center">
+            <h3 class="font-bold text-lg">Transaction History</h3>
+            <div class="flex gap-2">
+                <select id="filterType" onchange="renderTransactions()" class="p-2 rounded bg-gray-700 text-xs">
+                    <option value="all">All</option>
+                    <option value="sent">Sent</option>
+                    <option value="received">Received</option>
+                </select>
+                <button onclick="clearTransactions()" class="p-2 bg-gray-700 text-red-400 text-xs rounded hover:bg-red-900">Clear History</button>
+            </div>
+        </div>
+        <ul id="transactions" class="text-gray-300 space-y-2 max-h-64 overflow-y-auto text-sm"></ul>
+    </section>
+
+    <section class="bg-gray-800 p-6 rounded-xl shadow">
+        <h3 class="font-bold text-lg mb-4">Spending Overview</h3>
+        <canvas id="spendingChart" class="max-h-64"></canvas>
+    </section>
+
+</main>
+
+<script>
+    // 1. IDENTITY SETUP
+    const user = JSON.parse(localStorage.getItem("fintechUser"));
+    if (!localStorage.getItem("loggedIn") || !user) {
+        window.location.href = "fintech.html";
+    }
+    document.getElementById("userEmail").textContent = user.email;
+
+    // We use the email as a key so different users have different data
+    const userKey = `data_${user.email}`;
+    let userData = JSON.parse(localStorage.getItem(userKey)) || {
+        cards: [], // New users start with 0 cards
+        transactions: [],
+        activeCardIndex: 0
+    };
+
+    function saveData() {
+        localStorage.setItem(userKey, JSON.stringify(userData));
+    }
+
+    // 2. CARD LOGIC
+    function renderCards() {
+        const container = document.getElementById("cards");
+        container.innerHTML = "";
+        
+        if (userData.cards.length === 0) {
+            container.innerHTML = `<p class="text-gray-500 text-sm italic">No cards added yet.</p>`;
+            document.getElementById("balance").textContent = "₦0";
+            document.getElementById("activeCardName").textContent = "No Active Card";
+            return;
+        }
+
+        userData.cards.forEach((card, idx) => {
+            const isActive = idx === userData.activeCardIndex;
+            const div = document.createElement("div");
+            div.className = `p-3 rounded cursor-pointer transition flex justify-between items-center ${isActive ? 'bg-indigo-600 border-l-4 border-white' : 'bg-gray-700 hover:bg-gray-600'}`;
+            div.onclick = () => switchCard(idx);
+            
+            div.innerHTML = `
+                <span>${card.name}</span>
+                <span class="font-bold text-xs italic">₦${card.balance.toLocaleString()}</span>
+            `;
+            container.appendChild(div);
+        });
+
+        // Update main balance display based on active card
+        const activeCard = userData.cards[userData.activeCardIndex];
+        if (activeCard) {
+            document.getElementById("balance").textContent = `₦${activeCard.balance.toLocaleString()}`;
+            document.getElementById("activeCardName").textContent = `Current: ${activeCard.name}`;
+        }
+    }
+
+    function addCard() {
+        const name = prompt("Enter Card Name (e.g., Salary, Savings):");
+        if (!name) return;
+        userData.cards.push({ name: name, balance: 0 });
+        saveData();
+        renderCards();
+        addNotification(`Created new card: ${name}`);
+    }
+
+    function switchCard(index) {
+        userData.activeCardIndex = index;
+        saveData();
+        renderCards();
+        renderTransactions();
+        renderChart();
+        addNotification(`Switched to ${userData.cards[index].name}`);
+    }
+
+    // 3. TRANSACTION LOGIC
+    function addTransaction(type, amount, note) {
+        userData.transactions.push({
+            type,
+            amount,
+            note,
+            cardName: userData.cards[userData.activeCardIndex].name,
+            date: new Date().toLocaleString()
+        });
+        saveData();
+        renderTransactions();
+        renderChart();
+    }
+
+    function renderTransactions() {
+        const filter = document.getElementById("filterType").value;
+        const list = document.getElementById("transactions");
+        list.innerHTML = "";
+        
+        const filtered = userData.transactions.filter(t => filter === "all" || t.type === filter);
+        
+        if (filtered.length === 0) {
+            list.innerHTML = `<li class="text-gray-500 italic">No transactions found.</li>`;
+            return;
+        }
+
+        filtered.slice().reverse().forEach(t => {
+            const li = document.createElement("li");
+            li.className = "flex justify-between border-b border-gray-700 pb-2";
+            li.innerHTML = `
+                <div>
+                    <p class="font-bold ${t.type === 'sent' ? 'text-red-400' : 'text-green-400'}">${t.type.toUpperCase()}</p>
+                    <p class="text-xs text-gray-500">${t.date} | ${t.cardName}</p>
+                </div>
+                <div class="text-right">
+                    <p class="font-bold">₦${t.amount.toLocaleString()}</p>
+                    <p class="text-xs text-gray-400">${t.note || ''}</p>
+                </div>
+            `;
+            list.appendChild(li);
+        });
+    }
+
+    function clearTransactions() {
+        if (confirm("Clear all transaction history?")) {
+            userData.transactions = [];
+            saveData();
+            renderTransactions();
+            renderChart();
+        }
+    }
+
+    // 4. MONEY OPERATIONS
+    function sendMoney() {
+        if (userData.cards.length === 0) return alert("Add a card first!");
+        
+        const amount = Number(document.getElementById("sendAmount").value);
+        const activeCard = userData.cards[userData.activeCardIndex];
+        const bank = document.getElementById("bankSelect").value;
+        const recipient = document.getElementById("recipientName").value;
+
+        if (!bank || !recipient || amount <= 0) return alert("Fill all fields correctly");
+        if (amount > activeCard.balance) return alert("Insufficient funds on this card!");
+
+        activeCard.balance -= amount;
+        addTransaction("sent", amount, `To ${recipient} (${bank})`);
+        
+        document.getElementById("sendAmount").value = "";
+        document.getElementById("recipientName").value = "";
+        renderCards();
+    }
+
+    function receiveMoney() {
+        if (userData.cards.length === 0) return alert("Add a card first!");
+        
+        const amount = Number(document.getElementById("receiveAmount").value);
+        if (amount <= 0) return alert("Enter a valid amount");
+
+        userData.cards[userData.activeCardIndex].balance += amount;
+        addTransaction("received", amount, "Manual Deposit");
+        
+        document.getElementById("receiveAmount").value = "";
+        renderCards();
+    }
+
+    // 5. MISC (Notifications, Chart, Logout)
+    function addNotification(text) {
+        const notifEl = document.getElementById("notifications");
+        const li = document.createElement("li");
+        li.textContent = `[${new Date().toLocaleTimeString()}] ${text}`;
+        notifEl.prepend(li);
+    }
+
+    function logout() {
+        localStorage.removeItem("loggedIn");
+        window.location.href = "fintech.html";
+    }
+
+    let chart;
+    function renderChart() {
+        const ctx = document.getElementById("spendingChart").getContext("2d");
+        const sent = userData.transactions.filter(t => t.type === "sent").reduce((a, b) => a + b.amount, 0);
+        const received = userData.transactions.filter(t => t.type === "received").reduce((a, b) => a + b.amount, 0);
+
+        if (chart) chart.destroy();
+        chart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Sent', 'Received'],
+                datasets: [{
+                    data: [sent, received],
+                    backgroundColor: ['#f87171', '#4ade80'],
+                    borderWidth: 0
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+    }
+
+    // INIT
+    renderCards();
+    renderTransactions();
+    renderChart();
+
+</script>
+</body>
+</html>
