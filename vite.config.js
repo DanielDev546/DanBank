@@ -3,7 +3,15 @@ import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
   plugins: [
-    tailwindcss(),  ],
+    tailwindcss(),
+  ],
+  base: '/DanBank/', // Add this so links work on GitHub Pages
+  build: {
+    rollupOptions: {
+      input: {
+        main: './index.html',
+        dashboard: './dashboard.html' 
+      }
+    }
+  }
 })
-
-import { svelte } from '@sveltejs/vite-plugin-svelte'   
