@@ -109,8 +109,8 @@
 <section class="py-20 bg-indigo-600 text-center">
   <h2 class="text-3xl font-bold">Ready to take control of your money?</h2>
 <button onclick="handleCTA()"
-  class="mt-6 px-6 py-3 bg-black rounded-xl border-black hover:bg-gray-700 transition"
-  <a href="/dashboard.html">  Login to Dashboard</a>
+  class="mt-6 px-6 py-3 bg-black rounded-xl border-black hover:bg-gray-700 transition">
+  <a  href="/dashboard.html">  Login to Dashboard</a>
 
 </button>
 
@@ -230,8 +230,8 @@
 
   function handleCTA() {
     if (localStorage.getItem("loggedIn")) {
-      window.location.href = "dashboard.html";
-    } else {
+         window.location.href = "/DanBank/dashboard.html";    
+       } else {
       openAuth();
     }
   }
