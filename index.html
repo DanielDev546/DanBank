@@ -14,37 +14,44 @@
 <section class="relative h-screen">
   <img src="./background.jpg" class="absolute inset-0 w-full h-full object-cover" />
   <div class="absolute inset-0 bg-black/60"></div>
-
+ 
   <div class="relative z-10 flex h-full items-center ">
     <div class="max-w-xl">
-      <nav class="fixed top-0 w-full z-30 backdrop-blur-lg border-b border-white/10 px-6 py-4 flex justify-between items-center mx--18">
-  <div class="text-2xl font-bold">Dan<span class="text-blue-500 text-2xl">Bank</span></div>
-  <div class="space-x-6 text-sm font-medium text-gray-300">
-    <a href="#" class="hover:text-white transition">Features</a>
-    <a href="#" class="hover:text-white transition">Security</a>
-    <button onclick="openAuth()" class="bg-blue-600 px-4 py-2 rounded-lg text-white">Open Account</button>
-  </div>
-</nav><br>
-      <h2 class="text-5xl md:text-6xl font-bold mt-10 px-6 md:px-16  text-blue-400"> Dan<span class="text-white">Bank</span> </h2><br>
-      <h1 class="text-2xl md:text-3xl font-bold leading-tigh text-gray-300 mt-5 px-6 md:px-16">
-        Smart Banking that is surely <br>Built for Speed and Reliability <br> Your security is our full-time job 
+    <nav class="fixed top-0 left-0 w-full z-50 backdrop-blur-lg border-b border-white/10 px-6 py-4">
+    <div class="max-w-7xl mx-auto flex justify-between items-center">
+      <div class="text-2xl md:text-4xl font-bold">Dan<span class="text-blue-500 text-2xl md:text-4xl">Bank</span></div>
+      <div class="hidden md:flex items-center space-x-8 text-sm font-medium text-gray-300">
+        <a href="#" class="hover:text-white transition">Features</a>
+        <a href="#" class="hover:text-white transition">Security</a>
+        <button onclick="openAuth()" class="bg-blue-600 px-5 py-2 rounded-lg text-white hover:bg-blue-500 transition">
+          Open Account
+        </button>
+      </div>
+      <button onclick="openAuth()" class="md:hidden bg-blue-600 px-3 py-1.5 rounded-lg text-xs">Join</button>
+    </div>
+  </nav><br><br>
+
+    <div class="px-6 md:px-16">
+
+      <h2 class="text-5xl md:text-6xl font-bold mt-10 px-6  text-blue-400"> Dan<span class="text-white text-5xl md:text-6xl">Bank</span> </h2><br>
+      <h1 class="text-2xl md:text-4xl font-bold leading-tigh text-gray-300 mt-5 ">
+        Smart Banking that is surely built for Speed and Reliability <br> Your security is our full-time job 
       </h1>
 
-      <p class="mt-10 text-xl text-white/80 px-6 md:px-16">
-        Send, receive, and manage your money securely<br> — anytime, anywhere.
+      <p class="mt-10 text-xl text-white/80  ">
+        Send, receive, and manage your money securely<br>  anytime, anywhere.
       </p>
-      <p class="mt-8 text-2xl md:text-4xl font-bold text-white   px-6 md:px-16 ">Move Fast. Save More. DanBank. </p>
-     <button onclick="openAuth()"
-    class="mt-20 mx-14 py-3 bg-indigo-600 rounded-xl hover:bg-indigo-500 transition  px-6 md:px-16">
-  Login / Register
-</button>
+      <p class="mt-8 text-sm font-medium text-gray-400 uppercase tracking-widest">Move Fast. Save More. DanBank.</p>
 
+     <button onclick="openAuth()"     class="mt-20 md:mt-20  py-3 bg-indigo-600 rounded-xl hover:bg-indigo-500 transition  px-6 md:px-16">
+           Login / Register
+      </button>
     </div>
   </div>
 </section>
 
 <!-- SECURITY -->
-<section class="py-20 px-6">
+<section id="security" class="py-20 px-6">
   <div class="text-center mb-12">
     <h2 class="text-3xl font-bold">Your security is our priority</h2>
     <p class="text-white/70 max-w-xl mx-auto mt-3">
@@ -71,7 +78,7 @@
 </section>
 
 <!-- FEATURES -->
-<section class="py-20 bg-gray-900 px-6">
+<section id="features" class="py-20 bg-gray-900 px-6">
   <div class="max-w-6xl mx-auto grid md:grid-cols-4 gap-6 text-center">
     <div class="p-6 bg-black rounded-xl">💸 Send Money</div>
     <div class="p-6 bg-black rounded-xl">📥 Receive Funds</div>
@@ -102,7 +109,7 @@
 <section class="py-20 bg-indigo-600 text-center">
   <h2 class="text-3xl font-bold">Ready to take control of your money?</h2>
 <button onclick="handleCTA()"
-  class="mt-6 px-6 py-3 bg-indigo-600 rounded-xl border-black hover:bg-indigo-500 transition"
+  class="mt-6 px-6 py-3 bg-black rounded-xl border-black hover:bg-indigo-500 transition"
   <a href="dashboard.html">
   Login / Dashboard
 </button>
